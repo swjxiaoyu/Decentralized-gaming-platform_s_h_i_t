@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黄金矿工 - Gold Miner Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-bg: #0a0a0f;
+            --secondary-bg: #1a1a2e;
+            --tertiary-bg: #16213e;
+            --card-bg: rgba(26, 26, 46, 0.85);
+            --border-color: rgba(99, 102, 241, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: #b8b8d1;
+            --text-muted: #8a8aa0;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --accent-tertiary: #06b6d4;
+            --accent-success: #10b981;
+            --accent-warning: #f59e0b;
+            --accent-error: #ef4444;
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
+            --gradient-secondary: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+            --gradient-tertiary: linear-gradient(135deg, #06b6d4 0%, #6366f1 100%);
+            --shadow-primary: 0 20px 40px rgba(99, 102, 241, 0.2);
+            --shadow-secondary: 0 10px 30px rgba(0, 0, 0, 0.4);
+            --glow-primary: 0 0 30px rgba(99, 102, 241, 0.5);
+            --glow-secondary: 0 0 30px rgba(139, 92, 246, 0.5);
+            --glow-tertiary: 0 0 30px rgba(6, 182, 212, 0.5);
+        }
+        
+        body {
+            font-family: 'Inter', 'Microsoft YaHei', sans-serif;
+            background: var(--primary-bg);
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(6, 182, 212, 0.15) 0%, transparent 50%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* 动态背景渐变效果 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 80%, rgba(99, 102, 241, 0.3) 0%, transparent 70%),
+                radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.3) 0%, transparent 70%),
+                radial-gradient(ellipse at 40% 40%, rgba(6, 182, 212, 0.25) 0%, transparent 70%),
+                radial-gradient(ellipse at 60% 70%, rgba(16, 185, 129, 0.2) 0%, transparent 70%),
+                radial-gradient(ellipse at 10% 30%, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+            z-index: -2;
+            animation: backgroundShift 20s ease-in-out infinite;
+        }
+        
+        /* 粒子背景 */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, rgba(99, 102, 241, 0.8), transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(139, 92, 246, 0.7), transparent),
+                radial-gradient(3px 3px at 90px 40px, rgba(6, 182, 212, 0.9), transparent),
+                radial-gradient(2px 2px at 130px 80px, rgba(16, 185, 129, 0.6), transparent),
+                radial-gradient(2px 2px at 160px 30px, rgba(245, 158, 11, 0.7), transparent),
+                radial-gradient(2px 2px at 200px 50px, rgba(99, 102, 241, 0.8), transparent),
+                radial-gradient(3px 3px at 250px 20px, rgba(139, 92, 246, 0.7), transparent),
+                radial-gradient(2px 2px at 300px 80px, rgba(6, 182, 212, 0.9), transparent),
+                radial-gradient(2px 2px at 350px 40px, rgba(16, 185, 129, 0.6), transparent),
+                radial-gradient(3px 3px at 400px 70px, rgba(245, 158, 11, 0.7), transparent),
+                radial-gradient(2px 2px at 450px 20px, rgba(99, 102, 241, 0.8), transparent),
+                radial-gradient(2px 2px at 500px 60px, rgba(139, 92, 246, 0.7), transparent),
+                radial-gradient(3px 3px at 550px 90px, rgba(6, 182, 212, 0.9), transparent),
+                radial-gradient(2px 2px at 600px 10px, rgba(16, 185, 129, 0.6), transparent),
+                radial-gradient(2px 2px at 650px 50px, rgba(245, 158, 11, 0.7), transparent);
+            background-repeat: repeat;
+            background-size: 800px 400px;
+            z-index: -1;
+            animation: particleFloat 25s linear infinite;
+        }
+        
+        @keyframes backgroundShift {
+            0%, 100% { 
+                transform: translateX(0) translateY(0) scale(1);
+                filter: hue-rotate(0deg) brightness(1) blur(0px);
+            }
+            25% { 
+                transform: translateX(-30px) translateY(-15px) scale(1.05);
+                filter: hue-rotate(45deg) brightness(1.1) blur(1px);
+            }
+            50% { 
+                transform: translateX(30px) translateY(15px) scale(0.95);
+                filter: hue-rotate(90deg) brightness(0.9) blur(0px);
+            }
+            75% { 
+                transform: translateX(-15px) translateY(30px) scale(1.02);
+                filter: hue-rotate(135deg) brightness(1.05) blur(0.5px);
+            }
+        }
+        
+        @keyframes particleFloat {
+            0% { 
+                transform: translateX(0) translateY(0);
+                opacity: 0.8;
+            }
+            25% { 
+                transform: translateX(-20px) translateY(-10px);
+                opacity: 1;
+            }
+            50% { 
+                transform: translateX(20px) translateY(10px);
+                opacity: 0.6;
+            }
+            75% { 
+                transform: translateX(-10px) translateY(20px);
+                opacity: 0.9;
+            }
+            100% { 
+                transform: translateX(0) translateY(0);
+                opacity: 0.8;
+            }
+        }
+        
+        /* 额外的动态光点效果 */
+        .dynamic-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.8) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: particleMove 8s linear infinite;
+        }
+        
+        .particle:nth-child(2) {
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.7) 0%, transparent 70%);
+            animation-delay: -2s;
+            animation-duration: 12s;
+        }
+        
+        .particle:nth-child(3) {
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.9) 0%, transparent 70%);
+            animation-delay: -4s;
+            animation-duration: 10s;
+        }
+        
+        .particle:nth-child(4) {
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.6) 0%, transparent 70%);
+            animation-delay: -6s;
+            animation-duration: 14s;
+        }
+        
+        .particle:nth-child(5) {
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.7) 0%, transparent 70%);
+            animation-delay: -8s;
+            animation-duration: 9s;
+        }
+        
+        @keyframes particleMove {
+            0% {
+                transform: translateX(0) translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            90% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                transform: translateX(100px) translateY(-100px) scale(0);
+                opacity: 0;
+            }
+        }
+        
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+            padding: 12px 0;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            height: 100%;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            flex-shrink: 0;
+        }
+        
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+            justify-content: flex-end;
+        }
+        
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        
+        .nav-link:hover::before,
+        .nav-link.active::before {
+            opacity: 0.1;
+        }
+        
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+        
+        /* 游戏容器 */
+        .game-container {
+            margin-top: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .game-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        
+        .game-info {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .info-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px 20px;
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .info-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .score {
+            color: var(--accent-warning);
+        }
+        
+        .level {
+            color: var(--accent-primary);
+        }
+        
+        .time {
+            color: var(--accent-tertiary);
+        }
+        
+        /* 游戏画布 */
+        .game-canvas {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0a0a0f 100%);
+            box-shadow: var(--shadow-primary);
+            margin-bottom: 20px;
+        }
+        
+        /* 游戏控制 */
+        .game-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-primary);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* 游戏说明 */
+        .game-instructions {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 600px;
+            text-align: center;
+        }
+        
+        .game-instructions h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--accent-primary);
+        }
+        
+        .game-instructions p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .game-instructions ul {
+            text-align: left;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-left: 20px;
+        }
+        
+        .game-instructions li {
+            margin-bottom: 5px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 2rem;
+            }
+            
+            .game-info {
+                gap: 15px;
+            }
+            
+            .info-item {
+                min-width: 100px;
+                padding: 10px 15px;
+            }
+            
+            .game-controls {
+                gap: 10px;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .nav-menu {
+                gap: 10px;
+            }
+            
+            .nav-link {
+                padding: 6px 12px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 动态粒子背景 -->
+    <div class="dynamic-particles">
+        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 20%; animation-delay: -2s;"></div>
+        <div class="particle" style="left: 30%; animation-delay: -4s;"></div>
+        <div class="particle" style="left: 40%; animation-delay: -6s;"></div>
+        <div class="particle" style="left: 50%; animation-delay: -8s;"></div>
+        <div class="particle" style="left: 60%; animation-delay: -10s;"></div>
+        <div class="particle" style="left: 70%; animation-delay: -12s;"></div>
+        <div class="particle" style="left: 80%; animation-delay: -14s;"></div>
+        <div class="particle" style="left: 90%; animation-delay: -16s;"></div>
+        <div class="particle" style="left: 15%; animation-delay: -18s;"></div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">⛏️ 黄金矿工</div>
+            <div class="nav-menu">
+                <a href="index-main.html" class="nav-link">首页</a>
+                <a href="games-list.html" class="nav-link">游戏</a>
+                <a href="index.html" class="nav-link">钱包</a>
+                <a href="index-main.html#about" class="nav-link">平台说明</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 游戏容器 -->
+    <div class="game-container">
+        <!-- 游戏标题 -->
+        <div class="game-header">
+            <h1 class="game-title">黄金矿工</h1>
+        </div>
+
+        <!-- 游戏信息 -->
+        <div class="game-info">
+            <div class="info-item">
+                <div class="info-label">得分</div>
+                <div class="info-value score" id="score">0</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">关卡</div>
+                <div class="info-value level" id="level">1</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">时间</div>
+                <div class="info-value time" id="time">60</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">目标</div>
+                <div class="info-value" id="target">1000</div>
+            </div>
+        </div>
+
+        <!-- 游戏画布 -->
+        <canvas id="gameCanvas" class="game-canvas" width="800" height="600"></canvas>
+
+        <!-- 游戏控制 -->
+        <div class="game-controls">
+            <button id="startBtn" class="btn btn-primary">开始游戏</button>
+            <button id="pauseBtn" class="btn btn-secondary" disabled>暂停</button>
+            <button id="resetBtn" class="btn btn-secondary">重新开始</button>
+            <a href="games-list.html" class="btn btn-secondary">返回游戏中心</a>
+        </div>
+
+        <!-- 游戏说明 -->
+        <div class="game-instructions">
+            <h3>游戏说明</h3>
+            <p>使用鼠标控制钩子的摆动，点击释放钩子来收集物品！</p>
+            <ul>
+                <li>💰 金币：价值 10 分</li>
+                <li>💎 钻石：价值 50 分</li>
+                <li>🪨 石头：价值 5 分，但很重</li>
+                <li>钩子会左右摆动，选择合适的时机释放</li>
+                <li>达到目标分数即可进入下一关</li>
+                <li>时间用完游戏结束</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 游戏状态
+        let gameState = {
+            isRunning: false,
+            isPaused: false,
+            score: 0,
+            level: 1,
+            time: 60,
+            target: 1000,
+            gameLoop: null,
+            timeInterval: null
+        };
+
+        // 画布和上下文
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // 钩子对象
+        const hook = {
+            x: canvas.width / 2,
+            y: 50,
+            length: 0,
+            maxLength: canvas.height - 100,
+            angle: 0,
+            swingAngle: 0,
+            swingSpeed: 0.02,
+            swingDirection: 1,
+            maxSwingAngle: Math.PI / 2, // 90度
+            isSwinging: true,
+            isDropping: false,
+            isReturning: false,
+            speed: 3
+        };
+
+        // 物品数组
+        let items = [];
+
+        // 游戏元素
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const scoreElement = document.getElementById('score');
+        const levelElement = document.getElementById('level');
+        const timeElement = document.getElementById('time');
+        const targetElement = document.getElementById('target');
+
+        // 初始化游戏
+        function initGame() {
+            generateItems();
+            updateUI();
+        }
+
+        // 生成物品
+        function generateItems() {
+            items = [];
+            const itemCount = 8 + gameState.level * 2;
+            
+            for (let i = 0; i < itemCount; i++) {
+                const item = {
+                    x: Math.random() * (canvas.width - 60) + 30,
+                    y: Math.random() * (canvas.height - 200) + 150,
+                    type: Math.random() < 0.1 ? 'diamond' : Math.random() < 0.3 ? 'stone' : 'coin',
+                    collected: false
+                };
+                items.push(item);
+            }
+        }
+
+        // 更新钩子摆动
+        function updateHookSwing() {
+            if (hook.isSwinging) {
+                hook.swingAngle += hook.swingSpeed * hook.swingDirection;
+                
+                if (hook.swingAngle >= hook.maxSwingAngle) {
+                    hook.swingAngle = hook.maxSwingAngle;
+                    hook.swingDirection = -1;
+                } else if (hook.swingAngle <= -hook.maxSwingAngle) {
+                    hook.swingAngle = -hook.maxSwingAngle;
+                    hook.swingDirection = 1;
+                }
+            }
+        }
+
+        // 放下钩子
+        function dropHook() {
+            if (hook.isDropping || hook.isReturning) return;
+            
+            hook.isSwinging = false;
+            hook.isDropping = true;
+            hook.length = 0;
+        }
+
+        // 更新钩子位置
+        function updateHook() {
+            if (hook.isDropping) {
+                hook.length += hook.speed;
+                
+                // 计算钩子位置（基于摆动角度）
+                const totalLength = 30 + hook.length;
+                hook.x = canvas.width / 2 + Math.sin(hook.swingAngle) * totalLength;
+                hook.y = 50 + Math.cos(hook.swingAngle) * totalLength;
+                
+                // 检查碰撞
+                checkCollision();
+                
+                // 检查边界
+                if (hook.y >= canvas.height - 50 || hook.length >= hook.maxLength) {
+                    returnHook();
+                }
+            } else if (hook.isReturning) {
+                hook.length -= hook.speed;
+                
+                if (hook.length <= 0) {
+                    hook.length = 0;
+                    hook.isReturning = false;
+                    hook.isSwinging = true;
+                    hook.x = canvas.width / 2;
+                    hook.y = 50;
+                } else {
+                    // 计算钩子位置（基于摆动角度）
+                    const totalLength = 30 + hook.length;
+                    hook.x = canvas.width / 2 + Math.sin(hook.swingAngle) * totalLength;
+                    hook.y = 50 + Math.cos(hook.swingAngle) * totalLength;
+                }
+            }
+        }
+
+        // 收回钩子
+        function returnHook() {
+            hook.isDropping = false;
+            hook.isReturning = true;
+        }
+
+        // 检查碰撞
+        function checkCollision() {
+            for (let item of items) {
+                if (item.collected) continue;
+                
+                const dx = hook.x - item.x;
+                const dy = hook.y - item.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 25) {
+                    item.collected = true;
+                    collectItem(item);
+                    returnHook();
+                    break;
+                }
+            }
+        }
+
+        // 收集物品
+        function collectItem(item) {
+            let points = 0;
+            switch (item.type) {
+                case 'coin':
+                    points = 10;
+                    break;
+                case 'diamond':
+                    points = 50;
+                    break;
+                case 'stone':
+                    points = 5;
+                    break;
+            }
+            
+            gameState.score += points;
+            updateUI();
+            
+            // 检查是否达到目标
+            if (gameState.score >= gameState.target) {
+                nextLevel();
+            }
+        }
+
+        // 下一关
+        function nextLevel() {
+            gameState.level++;
+            gameState.target = gameState.target * 1.5;
+            gameState.time = 60;
+            hook.maxLength = canvas.height - 100;
+            generateItems();
+            updateUI();
+        }
+
+        // 更新UI
+        function updateUI() {
+            scoreElement.textContent = gameState.score;
+            levelElement.textContent = gameState.level;
+            timeElement.textContent = gameState.time;
+            targetElement.textContent = Math.floor(gameState.target);
+        }
+
+        // 渲染游戏
+        function render() {
+            // 清空画布
+            ctx.fillStyle = '#0a0a0f';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制背景
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#1a1a2e');
+            gradient.addColorStop(1, '#0a0a0f');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制物品
+            drawItems();
+            
+            // 绘制钩子
+            drawHook();
+            
+            // 绘制绳子
+            drawRope();
+        }
+
+        // 绘制物品
+        function drawItems() {
+            for (let item of items) {
+                if (item.collected) continue;
+                
+                drawItem(item);
+            }
+        }
+
+        // 绘制单个物品
+        function drawItem(item) {
+            ctx.save();
+            ctx.translate(item.x, item.y);
+            
+            // 绘制物品图标
+            ctx.font = '24px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            let icon = '';
+            let color = '';
+            
+            switch (item.type) {
+                case 'coin':
+                    icon = '💰';
+                    color = '#f59e0b';
+                    break;
+                case 'diamond':
+                    icon = '💎';
+                    color = '#06b6d4';
+                    break;
+                case 'stone':
+                    icon = '🪨';
+                    color = '#8a8aa0';
+                    break;
+            }
+            
+            ctx.fillText(icon, 0, 0);
+            
+            // 绘制价值标签
+            ctx.font = '12px Arial';
+            ctx.fillStyle = color;
+            let value = '';
+            switch (item.type) {
+                case 'coin':
+                    value = '10';
+                    break;
+                case 'diamond':
+                    value = '50';
+                    break;
+                case 'stone':
+                    value = '5';
+                    break;
+            }
+            ctx.fillText(value, 0, 20);
+            
+            ctx.restore();
+        }
+
+        // 绘制钩子
+        function drawHook() {
+            ctx.save();
+            ctx.translate(hook.x, hook.y);
+            ctx.rotate(hook.swingAngle);
+            
+            // 绘制钩子
+            ctx.fillStyle = '#8a8aa0';
+            ctx.beginPath();
+            ctx.arc(0, 0, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 绘制钩子尖端
+            ctx.fillStyle = '#6366f1';
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-5, 10);
+            ctx.lineTo(5, 10);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.restore();
+        }
+
+        // 绘制绳子
+        function drawRope() {
+            if (hook.isDropping || hook.isReturning) {
+                ctx.strokeStyle = '#8a8aa0';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(canvas.width / 2, 50);
+                ctx.lineTo(hook.x, hook.y);
+                ctx.stroke();
+            }
+        }
+
+        // 游戏主循环
+        function gameLoop() {
+            if (!gameState.isRunning || gameState.isPaused) return;
+            
+            updateHookSwing();
+            updateHook();
+            render();
+        }
+
+        // 开始游戏
+        function startGame() {
+            gameState.isRunning = true;
+            gameState.isPaused = false;
+            startBtn.disabled = true;
+            pauseBtn.disabled = false;
+            
+            gameState.gameLoop = setInterval(gameLoop, 16);
+            gameState.timeInterval = setInterval(() => {
+                if (gameState.time > 0) {
+                    gameState.time--;
+                    updateUI();
+                } else {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        // 暂停游戏
+        function pauseGame() {
+            gameState.isPaused = !gameState.isPaused;
+            pauseBtn.textContent = gameState.isPaused ? '继续' : '暂停';
+        }
+
+        // 结束游戏
+        function endGame() {
+            gameState.isRunning = false;
+            clearInterval(gameState.gameLoop);
+            clearInterval(gameState.timeInterval);
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            pauseBtn.textContent = '暂停';
+            
+            alert(`游戏结束！最终得分：${gameState.score}`);
+        }
+
+        // 重置游戏
+        function resetGame() {
+            gameState.isRunning = false;
+            gameState.isPaused = false;
+            gameState.score = 0;
+            gameState.level = 1;
+            gameState.time = 60;
+            gameState.target = 1000;
+            
+            hook.swingAngle = 0;
+            hook.isSwinging = true;
+            hook.isDropping = false;
+            hook.isReturning = false;
+            hook.length = 0;
+            hook.maxLength = canvas.height - 100;
+            hook.x = canvas.width / 2;
+            hook.y = 50;
+            
+            clearInterval(gameState.gameLoop);
+            clearInterval(gameState.timeInterval);
+            
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            pauseBtn.textContent = '暂停';
+            
+            initGame();
+            render();
+        }
+
+        // 事件监听器
+        startBtn.addEventListener('click', startGame);
+        pauseBtn.addEventListener('click', pauseGame);
+        resetBtn.addEventListener('click', resetGame);
+
+        // 鼠标点击事件
+        canvas.addEventListener('click', (e) => {
+            if (gameState.isRunning && !gameState.isPaused) {
+                dropHook();
+            }
+        });
+
+        // 窗口大小改变时调整画布
+        window.addEventListener('resize', () => {
+            hook.maxLength = canvas.height - 100;
+        });
+
+        // 初始化游戏
+        initGame();
+        render();
+    </script>
+</body>
+</html>
