@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>去中心化游戏平台 - Decentralized Gaming Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-bg: #0a0a0f;
+            --secondary-bg: #1a1a2e;
+            --tertiary-bg: #16213e;
+            --card-bg: rgba(26, 26, 46, 0.85);
+            --border-color: rgba(99, 102, 241, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: #b8b8d1;
+            --text-muted: #8a8aa0;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --accent-tertiary: #06b6d4;
+            --accent-success: #10b981;
+            --accent-warning: #f59e0b;
+            --accent-error: #ef4444;
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
+            --gradient-secondary: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+            --gradient-tertiary: linear-gradient(135deg, #06b6d4 0%, #6366f1 100%);
+            --shadow-primary: 0 20px 40px rgba(99, 102, 241, 0.2);
+            --shadow-secondary: 0 10px 30px rgba(0, 0, 0, 0.4);
+            --glow-primary: 0 0 30px rgba(99, 102, 241, 0.5);
+            --glow-secondary: 0 0 30px rgba(139, 92, 246, 0.5);
+            --glow-tertiary: 0 0 30px rgba(6, 182, 212, 0.5);
+        }
+        
+        body {
+            font-family: 'Inter', 'Microsoft YaHei', sans-serif;
+            background: var(--primary-bg);
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(6, 182, 212, 0.15) 0%, transparent 50%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* 动态背景渐变效果 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 80%, rgba(99, 102, 241, 0.3) 0%, transparent 70%),
+                radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.3) 0%, transparent 70%),
+                radial-gradient(ellipse at 40% 40%, rgba(6, 182, 212, 0.25) 0%, transparent 70%),
+                radial-gradient(ellipse at 60% 70%, rgba(16, 185, 129, 0.2) 0%, transparent 70%),
+                radial-gradient(ellipse at 10% 30%, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+            z-index: -2;
+            animation: backgroundShift 20s ease-in-out infinite;
+        }
+        
+        /* 粒子背景 */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, rgba(99, 102, 241, 0.8), transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(139, 92, 246, 0.7), transparent),
+                radial-gradient(3px 3px at 90px 40px, rgba(6, 182, 212, 0.9), transparent),
+                radial-gradient(2px 2px at 130px 80px, rgba(16, 185, 129, 0.6), transparent),
+                radial-gradient(2px 2px at 160px 30px, rgba(245, 158, 11, 0.7), transparent),
+                radial-gradient(2px 2px at 200px 50px, rgba(99, 102, 241, 0.8), transparent),
+                radial-gradient(3px 3px at 250px 20px, rgba(139, 92, 246, 0.7), transparent),
+                radial-gradient(2px 2px at 300px 80px, rgba(6, 182, 212, 0.9), transparent),
+                radial-gradient(2px 2px at 350px 40px, rgba(16, 185, 129, 0.6), transparent),
+                radial-gradient(3px 3px at 400px 70px, rgba(245, 158, 11, 0.7), transparent),
+                radial-gradient(2px 2px at 450px 20px, rgba(99, 102, 241, 0.8), transparent),
+                radial-gradient(2px 2px at 500px 60px, rgba(139, 92, 246, 0.7), transparent),
+                radial-gradient(3px 3px at 550px 90px, rgba(6, 182, 212, 0.9), transparent),
+                radial-gradient(2px 2px at 600px 10px, rgba(16, 185, 129, 0.6), transparent),
+                radial-gradient(2px 2px at 650px 50px, rgba(245, 158, 11, 0.7), transparent);
+            background-repeat: repeat;
+            background-size: 800px 400px;
+            z-index: -1;
+            animation: particleFloat 25s linear infinite;
+        }
+        
+        @keyframes backgroundShift {
+            0%, 100% { 
+                transform: translateX(0) translateY(0) scale(1);
+                filter: hue-rotate(0deg) brightness(1) blur(0px);
+            }
+            25% { 
+                transform: translateX(-30px) translateY(-15px) scale(1.05);
+                filter: hue-rotate(45deg) brightness(1.1) blur(1px);
+            }
+            50% { 
+                transform: translateX(30px) translateY(15px) scale(0.95);
+                filter: hue-rotate(90deg) brightness(0.9) blur(0px);
+            }
+            75% { 
+                transform: translateX(-15px) translateY(30px) scale(1.02);
+                filter: hue-rotate(135deg) brightness(1.05) blur(0.5px);
+            }
+        }
+        
+        @keyframes particleFloat {
+            0% { 
+                transform: translateX(0) translateY(0);
+                opacity: 0.8;
+            }
+            25% { 
+                transform: translateX(-20px) translateY(-10px);
+                opacity: 1;
+            }
+            50% { 
+                transform: translateX(20px) translateY(10px);
+                opacity: 0.6;
+            }
+            75% { 
+                transform: translateX(-10px) translateY(20px);
+                opacity: 0.9;
+            }
+            100% { 
+                transform: translateX(0) translateY(0);
+                opacity: 0.8;
+            }
+        }
+        
+        /* 额外的动态光点效果 */
+        .dynamic-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.8) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: particleMove 8s linear infinite;
+        }
+        
+        .particle:nth-child(2) {
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.7) 0%, transparent 70%);
+            animation-delay: -2s;
+            animation-duration: 12s;
+        }
+        
+        .particle:nth-child(3) {
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.9) 0%, transparent 70%);
+            animation-delay: -4s;
+            animation-duration: 10s;
+        }
+        
+        .particle:nth-child(4) {
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.6) 0%, transparent 70%);
+            animation-delay: -6s;
+            animation-duration: 14s;
+        }
+        
+        .particle:nth-child(5) {
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.7) 0%, transparent 70%);
+            animation-delay: -8s;
+            animation-duration: 9s;
+        }
+        
+        @keyframes particleMove {
+            0% {
+                transform: translateX(0) translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            90% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                transform: translateX(0) translateY(-100px) scale(0);
+                opacity: 0;
+            }
+        }
+        
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+            padding: 12px 0;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            height: 100%;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            flex-shrink: 0;
+        }
+        
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+            justify-content: flex-end;
+        }
+        
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        
+        .nav-link:hover::before,
+        .nav-link.active::before {
+            opacity: 0.1;
+        }
+        
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+        
+        /* 主内容区域 */
+        .main-content {
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+        
+        /* 页面内容 */
+        .page-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        
+        .page-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* 英雄区域 */
+        .hero {
+            text-align: center;
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-primary);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 25px 50px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        /* 功能卡片 */
+        .features {
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 60px;
+            color: var(--text-primary);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        
+        .feature-card:hover::before {
+            opacity: 0.05;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-primary);
+            border-color: var(--accent-primary);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+        
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* 关于页面 */
+        .about-section {
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .about-section h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            text-align: center;
+            color: var(--text-primary);
+        }
+        
+        .about-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+        
+        .about-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .about-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-primary);
+        }
+        
+        .about-card h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--accent-primary);
+        }
+        
+        .about-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .nav-menu {
+                gap: 10px;
+            }
+            
+            .nav-link {
+                padding: 6px 12px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 动态粒子背景 -->
+    <div class="dynamic-particles">
+        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 20%; animation-delay: -2s;"></div>
+        <div class="particle" style="left: 30%; animation-delay: -4s;"></div>
+        <div class="particle" style="left: 40%; animation-delay: -6s;"></div>
+        <div class="particle" style="left: 50%; animation-delay: -8s;"></div>
+        <div class="particle" style="left: 60%; animation-delay: -10s;"></div>
+        <div class="particle" style="left: 70%; animation-delay: -12s;"></div>
+        <div class="particle" style="left: 80%; animation-delay: -14s;"></div>
+        <div class="particle" style="left: 90%; animation-delay: -16s;"></div>
+        <div class="particle" style="left: 15%; animation-delay: -18s;"></div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🎮 去中心化游戏平台</div>
+            <div class="nav-menu">
+                <a href="#" class="nav-link active" onclick="showPage('home')">首页</a>
+                <a href="games-list.html" class="nav-link">游戏</a>
+                <a href="index.html" class="nav-link">钱包</a>
+                <a href="#" class="nav-link" onclick="showPage('about')">平台说明</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <!-- 首页内容 -->
+        <div id="home" class="page-content active">
+            <!-- 英雄区域 -->
+            <section class="hero">
+                <h1>去中心化游戏平台</h1>
+                <p>体验下一代区块链游戏，享受真正的数字资产所有权和跨游戏互操作性</p>
+                <div class="cta-buttons">
+                    <a href="games-list.html" class="btn btn-primary">进入游戏中心</a>
+                    <a href="index.html" class="btn btn-secondary">连接钱包</a>
+                </div>
+            </section>
+
+            <!-- 功能特性 -->
+            <section class="features">
+                <h2>平台特性</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <span class="feature-icon">🎮</span>
+                        <h3>游戏中心</h3>
+                        <p>多样化的区块链游戏体验，从经典到创新，满足不同玩家的需求</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">💎</span>
+                        <h3>数字钱包</h3>
+                        <p>安全可靠的区块链钱包系统，支持多种数字资产管理和交易</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">🔗</span>
+                        <h3>跨链互操作</h3>
+                        <p>基于游戏链路协议，实现不同游戏间的资产自由转移和交易</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">🛡️</span>
+                        <h3>安全保障</h3>
+                        <p>采用最新的区块链技术，确保用户资产安全和交易透明</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">⚡</span>
+                        <h3>高性能</h3>
+                        <p>优化的智能合约和网络架构，提供快速、低成本的交易体验</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">🌐</span>
+                        <h3>开放生态</h3>
+                        <p>开放的API接口和协议标准，欢迎更多开发者加入生态建设</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 平台说明内容 -->
+        <div id="about" class="page-content">
+            <section class="about-section">
+                <h2>平台说明</h2>
+                <div class="about-content">
+                    <div class="about-card">
+                        <h3>🎯 平台介绍</h3>
+                        <p>去中心化游戏平台是一个基于区块链技术的游戏生态系统，旨在为玩家提供真正的数字资产所有权和跨游戏互操作性。通过智能合约和游戏链路协议，我们构建了一个安全、透明、高效的 gaming 环境。</p>
+                    </div>
+                    <div class="about-card">
+                        <h3>🏗️ 技术架构</h3>
+                        <p>平台采用分层架构设计，包括前端界面层、业务逻辑层、智能合约层和区块链网络层。每一层都有明确的职责分工，确保系统的可扩展性和维护性。</p>
+                    </div>
+                    <div class="about-card">
+                        <h3>🔧 核心功能</h3>
+                        <p>支持游戏内货币管理、道具交易、NFT收藏、跨游戏资产转移等功能。所有操作都通过智能合约执行，确保交易的不可篡改性和透明度。</p>
+                    </div>
+                    <div class="about-card">
+                        <h3>📋 使用指南</h3>
+                        <p>1. 连接MetaMask钱包<br>2. 切换到Ganache测试网络<br>3. 部署或导入游戏合约<br>4. 开始游戏和交易体验</p>
+                    </div>
+                    <div class="about-card">
+                        <h3>⚠️ 注意事项</h3>
+                        <p>请确保在测试环境中使用，不要使用真实资金。定期备份钱包私钥，注意网络安全，避免在不安全的网络环境下操作。</p>
+                    </div>
+                    <div class="about-card">
+                        <h3>🔮 未来规划</h3>
+                        <p>计划支持更多游戏类型、NFT功能、跨链桥接、移动端适配等。我们将持续优化用户体验，扩展生态系统，为玩家提供更好的服务。</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // 页面切换功能
+        function showPage(pageId) {
+            // 隐藏所有页面内容
+            const pages = document.querySelectorAll('.page-content');
+            pages.forEach(page => {
+                page.classList.remove('active');
+                page.style.opacity = '0';
+                page.style.transform = 'translateY(20px)';
+            });
+            
+            // 移除所有导航链接的active状态
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // 显示目标页面
+            setTimeout(() => {
+                const targetPage = document.getElementById(pageId);
+                if (targetPage) {
+                    targetPage.classList.add('active');
+                    targetPage.style.opacity = '1';
+                    targetPage.style.transform = 'translateY(0)';
+                }
+                
+                // 设置对应导航链接为active
+                const activeLink = document.querySelector(`[onclick="showPage('${pageId}')"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+            }, 100);
+        }
+        
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 确保首页正确显示
+            const homePage = document.getElementById('home');
+            if (homePage) {
+                homePage.classList.add('active');
+                homePage.style.opacity = '1';
+                homePage.style.transform = 'translateY(0)';
+            }
+            
+            // 设置过渡效果
+            const pages = document.querySelectorAll('.page-content');
+            pages.forEach(page => {
+                page.style.transition = 'all 0.5s ease';
+            });
+        });
+    </script>
+</body>
+</html>
