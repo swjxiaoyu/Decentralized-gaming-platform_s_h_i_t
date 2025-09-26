@@ -1,0 +1,448 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "WalletInfo": {
+      "type": "object",
+      "title": "Wallet Information",
+      "required": ["walletId", "gameId", "supportedAssets", "status"],
+      "properties": {
+        "walletId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9-]+$",
+          "description": "Unique wallet identifier"
+        },
+        "gameId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9-_]+$",
+          "description": "Game identifier"
+        },
+        "gameName": {
+          "type": "string",
+          "description": "Human-readable game name"
+        },
+        "supportedAssets": {
+          "type": "array",
+          "description": "List of supported assets",
+          "items": {
+            "$ref": "#/definitions/AssetInfo"
+          }
+        },
+        "lastActivity": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last activity timestamp"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "inactive", "suspended", "maintenance"],
+          "description": "Wallet status"
+        }
+      }
+    },
+    "AssetInfo": {
+      "type": "object",
+      "title": "Asset Information",
+      "required": ["assetType", "assetId", "assetName"],
+      "properties": {
+        "assetType": {
+          "type": "string",
+          "enum": ["currency", "item", "nft", "token"],
+          "description": "Type of asset"
+        },
+        "assetId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9-_]+$",
+          "description": "Unique asset identifier"
+        },
+        "assetName": {
+          "type": "string",
+          "description": "Human-readable asset name"
+        },
+        "decimals": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18,
+          "description": "Number of decimal places"
+        },
+        "totalSupply": {
+          "type": "string",
+          "pattern": "^[0-9]+(\\.[0-9]+)?$",
+          "description": "Total supply of the asset"
+        },
+        "iconUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Asset icon URL"
+        }
+      }
+    },
+    "WalletReference": {
+      "type": "object",
+      "title": "Wallet Reference",
+      "required": ["walletId", "assetId"],
+      "properties": {
+        "walletId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9-]+$",
+          "description": "Wallet identifier"
+        },
+        "assetId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9-_]+$",
+          "description": "Asset identifier"
+        },
+        "amount": {
+          "type": "string",
+          "pattern": "^[0-9]+(\\.[0-9]+)?$",
+          "description": "Amount to transfer"
+        },
+        "expectedAmount": {
+          "type": "string",
+          "pattern": "^[0-9]+(\\.[0-9]+)?$",
+          "description": "Expected amount after conversion"
+        }
+      }
+    },
+    "ExchangeRate": {
+      "type": "object",
+      "title": "Exchange Rate",
+      "required": ["fromAsset", "toAsset", "rate"],
+      "properties": {
+        "fromAsset": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9-_]+$",
+          "description": "Source asset ID"
+        },
+        "toAsset": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9-_]+$",
+          "description": "Target asset ID"
+        },
+        "rate": {
+          "type": "string",
+          "pattern": "^[0-9]+(\\.[0-9]+)?:[0-9]+(\\.[0-9]+)?$",
+          "description": "Exchange rate"
+        },
+        "reverseRate": {
+          "type": "string",
+          "pattern": "^[0-9]+(\\.[0-9]+)?:[0-9]+(\\.[0-9]+)?$",
+          "description": "Reverse exchange rate"
+        },
+        "lastUpdated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Rate last updated timestamp"
+        },
+        "validUntil": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Rate validity expiration"
+        },
+        "provider": {
+          "type": "string",
+          "description": "Rate provider service"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Rate confidence level"
+        }
+      }
+    },
+    "TransferMetadata": {
+      "type": "object",
+      "title": "Transfer Metadata",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "enum": ["cross-game-trade", "reward-transfer", "purchase", "gift", "other"],
+          "description": "Transfer reason"
+        },
+        "gameSessionId": {
+          "type": "string",
+          "description": "Game session identifier"
+        },
+        "playerId": {
+          "type": "string",
+          "description": "Player identifier"
+        },
+        "description": {
+          "type": "string",
+          "description": "Additional description"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Transfer tags"
+        }
+      }
+    },
+    "TransferRequest": {
+      "type": "object",
+      "title": "Transfer Request",
+      "required": ["transferId", "sourceWallet", "targetWallet"],
+      "properties": {
+        "transferId": {
+          "type": "string",
+          "pattern": "^transfer-[a-zA-Z0-9-]+$",
+          "description": "Unique transfer identifier"
+        },
+        "sourceWallet": {
+          "$ref": "#/definitions/WalletReference",
+          "description": "Source wallet information"
+        },
+        "targetWallet": {
+          "$ref": "#/definitions/WalletReference",
+          "description": "Target wallet information"
+        },
+        "exchangeRate": {
+          "$ref": "#/definitions/ExchangeRate",
+          "description": "Exchange rate information"
+        },
+        "metadata": {
+          "$ref": "#/definitions/TransferMetadata",
+          "description": "Transfer metadata"
+        },
+        "expiryTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Transfer expiration time"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["low", "normal", "high", "urgent"],
+          "default": "normal",
+          "description": "Transfer priority"
+        }
+      }
+    },
+    "TransferStatus": {
+      "type": "object",
+      "title": "Transfer Status",
+      "required": ["transferId", "status"],
+      "properties": {
+        "transferId": {
+          "type": "string",
+          "pattern": "^transfer-[a-zA-Z0-9-]+$",
+          "description": "Transfer identifier"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "confirmed", "processing", "completed", "failed", "cancelled", "expired"],
+          "description": "Current transfer status"
+        },
+        "progress": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Transfer progress percentage"
+        },
+        "traceId": {
+          "type": "string",
+          "description": "Trace identifier for tracking"
+        },
+        "estimatedTime": {
+          "type": "string",
+          "description": "Estimated completion time"
+        },
+        "fees": {
+          "type": "object",
+          "properties": {
+            "protocolFee": {
+              "type": "string",
+              "pattern": "^[0-9]+(\\.[0-9]+)?$",
+              "description": "Protocol fee"
+            },
+            "exchangeFee": {
+              "type": "string",
+              "pattern": "^[0-9]+(\\.[0-9]+)?$",
+              "description": "Exchange fee"
+            },
+            "networkFee": {
+              "type": "string",
+              "pattern": "^[0-9]+(\\.[0-9]+)?$",
+              "description": "Network fee"
+            },
+            "totalFee": {
+              "type": "string",
+              "pattern": "^[0-9]+(\\.[0-9]+)?$",
+              "description": "Total fee"
+            }
+          }
+        },
+        "timeline": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["timestamp", "status", "message"],
+            "properties": {
+              "timestamp": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Event timestamp"
+              },
+              "status": {
+                "type": "string",
+                "description": "Event status"
+              },
+              "message": {
+                "type": "string",
+                "description": "Event message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional event details"
+              }
+            }
+          }
+        },
+        "transactions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["txHash"],
+            "properties": {
+              "txHash": {
+                "type": "string",
+                "pattern": "^0x[a-fA-F0-9]+$",
+                "description": "Transaction hash"
+              },
+              "blockNumber": {
+                "type": "integer",
+                "description": "Block number"
+              },
+              "gasUsed": {
+                "type": "integer",
+                "description": "Gas used"
+              },
+              "gasPrice": {
+                "type": "string",
+                "description": "Gas price"
+              }
+            }
+          }
+        }
+      }
+    },
+    "BalanceInfo": {
+      "type": "object",
+      "title": "Balance Information",
+      "required": ["walletId", "assetId", "balance"],
+      "properties": {
+        "walletId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9-]+$",
+          "description": "Wallet identifier"
+        },
+        "assetId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9-_]+$",
+          "description": "Asset identifier"
+        },
+        "balance": {
+          "type": "string",
+          "pattern": "^[0-9]+(\\.[0-9]+)?$",
+          "description": "Current balance"
+        },
+        "availableBalance": {
+          "type": "string",
+          "pattern": "^[0-9]+(\\.[0-9]+)?$",
+          "description": "Available balance (excluding locked)"
+        },
+        "lockedBalance": {
+          "type": "string",
+          "pattern": "^[0-9]+(\\.[0-9]+)?$",
+          "description": "Locked balance"
+        },
+        "lastUpdated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Balance last updated timestamp"
+        }
+      }
+    },
+    "ApiResponse": {
+      "type": "object",
+      "title": "API Response",
+      "required": ["code", "message"],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "description": "Response code"
+        },
+        "message": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "data": {
+          "description": "Response data"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Response timestamp"
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Request identifier"
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "title": "Error Response",
+      "required": ["code", "message"],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "description": "Error code"
+        },
+        "message": {
+          "type": "string",
+          "description": "Error message"
+        },
+        "details": {
+          "type": "object",
+          "description": "Error details"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Error timestamp"
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Request identifier"
+        }
+      }
+    }
+  },
+  "errorCodes": {
+    "1000": "Invalid request format",
+    "1001": "Missing required field",
+    "1002": "Invalid asset ID",
+    "1003": "Insufficient balance",
+    "1004": "Invalid wallet ID",
+    "1005": "Invalid amount format",
+    "1006": "Invalid transfer ID",
+    "2000": "Transfer not found",
+    "2001": "Transfer expired",
+    "2002": "Transfer already completed",
+    "2003": "Transfer cancelled",
+    "2004": "Transfer failed",
+    "3000": "Exchange rate unavailable",
+    "3001": "Exchange rate expired",
+    "3002": "Exchange rate invalid",
+    "4000": "Wallet not found",
+    "4001": "Wallet inactive",
+    "4002": "Wallet suspended",
+    "4003": "Asset not supported",
+    "5000": "Internal server error",
+    "5001": "Service unavailable",
+    "5002": "Database error",
+    "5003": "Network error"
+  }
+}
